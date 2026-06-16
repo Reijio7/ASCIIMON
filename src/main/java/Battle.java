@@ -1,202 +1,177 @@
+import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
+import com.googlecode.lanterna.TextCharacter;
+
 import java.util.Random;
 
 public class Battle {
 
-    private Pokemon player;
-    private Pokemon enemy;
+    private final Pokemon player;
+    private final Pokemon enemy;
+    private final Screen screen;
+    private final Random random = new Random();
 
-    public Battle(
-            Pokemon player,
-            Pokemon enemy) {
+    private String lastAction = "";
 
+    public Battle(Pokemon player, Pokemon enemy, Screen screen) {
         this.player = player;
         this.enemy = enemy;
+        this.screen = screen;
     }
 
     public void start() throws Exception {
 
-        while(player.alive() &&
-              enemy.alive()) {
+        while (player.alive() && enemy.alive()) {
 
             draw();
+            screen.refresh();
 
-            System.out.println();
-            System.out.println(
-                    "[A] ATAK"
-            );
+            KeyStroke key;
 
-            int key =
-                    System.in.read();
+            do {
+                key = screen.pollInput();
+                Thread.sleep(20);
+            } while (key == null);
 
-            if(key == 'a' ||
-               key == 'A') {
+            if (key.getKeyType() == KeyType.Character) {
 
-                attackAnimation();
+                char c = key.getCharacter();
 
-                enemy.damage(
-                        player.getAttack()
-                );
+                if (c == 'a' || c == 'A') {
+                    playerAttack(false);
+                }
 
-                if(enemy.alive()) {
-
-                    player.damage(
-                            enemy.getAttack()
-                    );
+                if (c == 's' || c == 'S') {
+                    playerAttack(true);
                 }
             }
         }
 
+        lastAction = player.alive() ? "WYGRANA!" : "PRZEGRANA!";
+
         draw();
+        screen.refresh();
 
-        System.out.println();
+        Thread.sleep(1500);
+    }
 
-        if(player.alive()) {
+    private void playerAttack(boolean special) throws Exception {
 
-            System.out.println(
-                    "WYGRANA!"
-            );
+        int dmg;
+
+        if (special) {
+            dmg = player.getAttack() + 10 + random.nextInt(10);
+            lastAction = player.getName() + " SPECJAL za " + dmg;
+        } else {
+            dmg = player.getAttack() + random.nextInt(5);
+            lastAction = player.getName() + " atakuje za " + dmg;
         }
-        else {
 
-            System.out.println(
-                    "PRZEGRANA!"
-            );
+        enemy.damage(dmg);
+
+        draw();
+        screen.refresh();
+
+        Thread.sleep(400);
+
+        if (enemy.alive()) {
+            enemyTurn();
         }
     }
 
-    private void draw() {
+    private void enemyTurn() throws Exception {
 
-        for(int i=0;i<30;i++) {
-            System.out.println();
-        }
+        int dmg = enemy.getAttack() + random.nextInt(6);
 
-        System.out.println(
-                "================================"
-        );
+        player.damage(dmg);
 
-        System.out.println(
-                player.getName()
-                + " HP: "
-                + player.getHp()
-        );
+        lastAction = enemy.getName() + " atakuje za " + dmg;
 
-        System.out.println();
+        draw();
+        screen.refresh();
 
-        printPokemon(
-                player.getName()
-        );
-
-        System.out.println();
-        System.out.println(
-                "-------------- VS --------------"
-        );
-
-        System.out.println();
-
-        printPokemon(
-                enemy.getName()
-        );
-
-        System.out.println();
-
-        System.out.println(
-                enemy.getName()
-                + " HP: "
-                + enemy.getHp()
-        );
-
-        System.out.println(
-                "================================"
-        );
+        Thread.sleep(500);
     }
 
-    private void attackAnimation()
-            throws Exception {
+    private void draw() throws Exception {
 
-        for(int i=0;i<15;i++) {
+        screen.clear();
 
-            System.out.print(">");
+        int w = screen.getTerminalSize().getColumns();
 
-            Thread.sleep(30);
-        }
+        drawText(2, 1, "YOU: " + player.getName());
+        drawText(2, 2, hpBar(player));
 
-        System.out.println(
-                " BOOM!"
-        );
+        int playerX = 2;
+        int playerY = 4;
 
-        Thread.sleep(300);
+
+        drawAscii(playerX, playerY, player);
+
+        int playerAsciiHeight = player.getAscii().size();
+
+
+        int ex = w / 2;
+
+        drawText(ex, 1, "ENEMY: " + enemy.getName());
+        drawText(ex, 2, hpBar(enemy));
+
+        drawAscii(ex, 4, enemy);
+
+        int enemyAsciiHeight = enemy.getAscii().size();
+
+        int uiY = Math.max(playerY + playerAsciiHeight, 15);
+
+        drawText(2, uiY, "[A] ATTACK   [S] SPECIAL");
+        drawText(2, uiY + 2, lastAction);
     }
 
-    private void printPokemon(
-            String name) {
 
-        if(name.equals("Pikachu")) {
 
-            System.out.println(
-                    " (\\__/)"
-            );
+    private String hpBar(Pokemon p) {
 
-            System.out.println(
-                    " (o.o )"
-            );
+        int bars = (p.getHp() * 20) / p.getMaxHp();
 
-            System.out.println(
-                    " /|_|\\\\"
-            );
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+
+        for (int i = 0; i < 20; i++) {
+            sb.append(i < bars ? "#" : "-");
         }
 
-        else if(name.equals(
-                "Charmander")) {
+        sb.append("] ")
+          .append(p.getHp())
+          .append("/")
+          .append(p.getMaxHp());
 
-            System.out.println(
-                    "  /^\\\\"
-            );
+        return sb.toString();
+    }
 
-            System.out.println(
-                    " (o o)"
-            );
 
-            System.out.println(
-                    " / V \\\\"
-            );
+
+    private void drawAscii(int x, int y, Pokemon p) {
+
+        int row = 0;
+
+        for (String line : p.getAscii()) {
+            drawText(x, y + row, line);
+            row++;
         }
+    }
 
-        else if(name.equals(
-                "Bulbasaur")) {
 
-            System.out.println(
-                    "  ___"
-            );
 
-            System.out.println(
-                    " (o o)"
-            );
+    private void drawText(int x, int y, String text) {
 
-            System.out.println(
-                    " / V \\\\"
-            );
-        }
+        if (text == null) return;
 
-        else if(name.equals(
-                "Squirtle")) {
+        for (int i = 0; i < text.length(); i++) {
 
-            System.out.println(
-                    " _____"
-            );
-
-            System.out.println(
-                    "( o o )"
-            );
-
-            System.out.println(
-                    " / ^ \\\\"
-            );
-        }
-
-        else {
-
-            System.out.println(
-                    " [???]"
+            screen.setCharacter(
+                    x + i,
+                    y,
+                    new TextCharacter(text.charAt(i))
             );
         }
     }

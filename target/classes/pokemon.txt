@@ -1,4 +1,4 @@
-Bulbasaur,45,49
-Charmander,39,52
-Squirtle,44,48
-Pikachu,35,55
+Bulbasaur,70,20
+Charmander,70,10
+Squirtle,60,10
+Pikachu,60,10

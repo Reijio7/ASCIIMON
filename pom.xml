@@ -13,6 +13,11 @@
             <artifactId>lanterna</artifactId>
             <version>3.1.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+            <version>1.5.10</version>
+        </dependency>
 
     </dependencies>
 

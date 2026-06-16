@@ -1,153 +1,68 @@
-import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.googlecode.lanterna.TextCharacter;
+import com.googlecode.lanterna.TextColor;
+
+import java.util.List;
 
 public class StarterMenu {
 
-    private final String[] starters = {
-            "Bulbasaur",
-            "Charmander",
-            "Squirtle",
-            "Pikachu"
-    };
-
-    public Pokemon chooseStarter() throws Exception {
-
-        Screen screen =
-                new DefaultTerminalFactory()
-                        .createScreen();
-
-        screen.startScreen();
+    public Pokemon chooseStarter(Screen screen, List<Pokemon> pokemons)
+            throws Exception {
 
         int selected = 0;
 
-        while(true) {
+        while (true) {
 
             screen.clear();
 
-            drawText(
-                    screen,
-                    2,
-                    1,
-                    "WYBIERZ STARTERA"
-            );
+            int w = screen.getTerminalSize().getColumns();
 
-            drawText(
-                    screen,
-                    2,
-                    2,
-                    "STRZALKI = WYBOR"
-            );
+            drawText(screen, w/2 - 8, 2, "CHOOSE POKEMON", TextColor.ANSI.GREEN);
 
-            drawText(
-                    screen,
-                    2,
-                    3,
-                    "ENTER = POTWIERDZENIE"
-            );
+            for (int i = 0; i < pokemons.size(); i++) {
 
-            for(int i = 0; i < starters.length; i++) {
-
-                String text;
-
-                if(i == selected) {
-                    text = "> " + starters[i];
-                }
-                else {
-                    text = "  " + starters[i];
-                }
+                String line = (i == selected ? "► " : "  ") + pokemons.get(i).getName();
 
                 drawText(
                         screen,
-                        4,
-                        6 + i,
-                        text
+                        w/2 - 10,
+                        5 + i * 2,
+                        line,
+                        i == selected ? TextColor.ANSI.YELLOW : TextColor.ANSI.WHITE
                 );
             }
 
             screen.refresh();
 
-            KeyStroke key =
-                    screen.readInput();
+            KeyStroke k = screen.pollInput();
 
-            if(key.getKeyType()
-                    == KeyType.ArrowUp) {
+            if (k != null) {
 
-                selected--;
+                if (k.getKeyType() == KeyType.ArrowUp) selected--;
+                if (k.getKeyType() == KeyType.ArrowDown) selected++;
 
-                if(selected < 0) {
-                    selected =
-                            starters.length - 1;
+                if (selected < 0) selected = pokemons.size() - 1;
+                if (selected >= pokemons.size()) selected = 0;
+
+                if (k.getKeyType() == KeyType.Enter) {
+                    return pokemons.get(selected);
                 }
             }
 
-            if(key.getKeyType()
-                    == KeyType.ArrowDown) {
-
-                selected++;
-
-                if(selected >= starters.length) {
-                    selected = 0;
-                }
-            }
-
-            if(key.getKeyType()
-                    == KeyType.Enter) {
-
-                screen.stopScreen();
-
-                if(selected == 0) {
-
-                    return new Pokemon(
-                            "Bulbasaur",
-                            45,
-                            49
-                    );
-                }
-
-                if(selected == 1) {
-
-                    return new Pokemon(
-                            "Charmander",
-                            39,
-                            52
-                    );
-                }
-
-                if(selected == 2) {
-
-                    return new Pokemon(
-                            "Squirtle",
-                            44,
-                            48
-                    );
-                }
-
-                return new Pokemon(
-                        "Pikachu",
-                        35,
-                        55
-                );
-            }
+            Thread.sleep(40);
         }
     }
 
-    private void drawText(
-            Screen screen,
-            int x,
-            int y,
-            String text) {
+    private void drawText(Screen s, int x, int y, String text, TextColor color) {
 
-        for(int i = 0; i < text.length(); i++) {
+        for (int i = 0; i < text.length(); i++) {
 
-            screen.setCharacter(
+            s.setCharacter(
                     x + i,
                     y,
-                    new TextCharacter(
-                            text.charAt(i)
-                    )
+                    new TextCharacter(text.charAt(i), color, TextColor.ANSI.BLACK)
             );
         }
     }

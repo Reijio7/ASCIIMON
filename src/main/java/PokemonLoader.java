@@ -3,48 +3,49 @@ import java.util.*;
 
 public class PokemonLoader {
 
-    public static List<Pokemon> load() throws Exception {
+    public static List<Pokemon> load() {
 
-        List<Pokemon> list = new ArrayList<>();
+        try {
 
-        InputStream is =
-            PokemonLoader.class
-                .getResourceAsStream("/pokemon.txt");
+            List<Pokemon> list = new ArrayList<>();
 
-        BufferedReader br =
-            new BufferedReader(
-                new InputStreamReader(is));
+            InputStream is =
+                    PokemonLoader.class.getResourceAsStream("/pokemon.txt");
 
-        String line;
-
-        while((line = br.readLine()) != null) {
-
-            line = line.trim();
-
-            if(line.isEmpty()) {
-                continue;
+            if (is == null) {
+                throw new RuntimeException("Brak pokemon.txt");
             }
 
-            String[] data = line.split(",");
+            BufferedReader br =
+                    new BufferedReader(new InputStreamReader(is));
 
-            if(data.length < 3) {
+            String line;
 
-                System.out.println(
-                    "Bledna linia: " + line
+            while ((line = br.readLine()) != null) {
+
+                line = line.trim();
+                if (line.isEmpty()) continue;
+
+                String[] d = line.split(",");
+
+                String name = d[0];
+                int hp = Integer.parseInt(d[1]);
+                int atk = Integer.parseInt(d[2]);
+
+                list.add(
+                        new Pokemon(
+                                name,
+                                hp,
+                                atk,
+                                AsciiLoader.load(name)
+                        )
                 );
-
-                continue;
             }
 
-            list.add(
-                new Pokemon(
-                    data[0],
-                    Integer.parseInt(data[1]),
-                    Integer.parseInt(data[2])
-                )
-            );
-        }
+            return list;
 
-        return list;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

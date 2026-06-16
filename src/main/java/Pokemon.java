@@ -1,13 +1,19 @@
+import java.util.List;
+
 public class Pokemon {
 
-    private String name;
+    private final String name;
     private int hp;
-    private int attack;
+    private final int maxHp;
+    private final int attack;
+    private final List<String> ascii;
 
-    public Pokemon(String name, int hp, int attack) {
+    public Pokemon(String name, int hp, int attack, List<String> ascii) {
         this.name = name;
         this.hp = hp;
+        this.maxHp = hp;
         this.attack = attack;
+        this.ascii = ascii;
     }
 
     public String getName() {
@@ -18,15 +24,21 @@ public class Pokemon {
         return hp;
     }
 
+    public int getMaxHp() {
+        return maxHp;
+    }
+
     public int getAttack() {
         return attack;
     }
 
+    public List<String> getAscii() {
+        return ascii;
+    }
+
     public void damage(int dmg) {
         hp -= dmg;
-
-        if(hp < 0)
-            hp = 0;
+        if (hp < 0) hp = 0;
     }
 
     public boolean alive() {

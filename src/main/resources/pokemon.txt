@@ -1,4 +1,4 @@
 Bulbasaur,70,20
 Charmander,70,10
 Squirtle,60,10
-Pikachu,60, 10
+Pikachu,60,10
