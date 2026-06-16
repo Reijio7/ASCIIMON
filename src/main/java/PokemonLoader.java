@@ -32,14 +32,18 @@ public class PokemonLoader {
                 int hp = Integer.parseInt(d[1]);
                 int atk = Integer.parseInt(d[2]);
 
+                PokemonType type =
+                        PokemonType.valueOf(d[3].trim().toUpperCase());
+
                 list.add(
-                        new Pokemon(
-                                name,
-                                hp,
-                                atk,
-                                AsciiLoader.load(name)
-                        )
-                );
+                    new Pokemon(
+                            name,
+                            hp,
+                            atk,
+                            type,
+                            AsciiLoader.load(name)
+                    )
+            );
             }
 
             return list;

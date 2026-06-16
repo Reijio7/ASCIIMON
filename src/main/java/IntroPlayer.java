@@ -13,17 +13,19 @@ public class IntroPlayer {
     private static final int TARGET_WIDTH = 110;
     private static final int TARGET_HEIGHT = 55;
 
-    
-
     public static void play(String videoPath, IntroController controller) {
+
+        System.err.println("INTRO START");
+
+        MusicPlayer music = new MusicPlayer();
+        music.play("intro.mp3");
 
         try (FFmpegFrameGrabber grabber =
                      new FFmpegFrameGrabber(videoPath)) {
 
             grabber.start();
 
-            double frameRate =
-                    grabber.getFrameRate();
+            double frameRate = grabber.getFrameRate();
 
             if (frameRate <= 0)
                 frameRate = 30;
@@ -39,15 +41,13 @@ public class IntroPlayer {
             System.out.print("\033[H\033[2J");
             System.out.flush();
 
-            long startTime =
-                    System.nanoTime();
-
+            long startTime = System.nanoTime();
             long frameCount = 0;
 
             while ((frame = grabber.grabImage()) != null) {
 
-
                 if (controller.isSkipped()) {
+                    music.stop();
                     break;
                 }
 
@@ -88,9 +88,13 @@ public class IntroPlayer {
                 frameCount++;
             }
 
+            music.stop();
             grabber.stop();
 
         } catch (Exception e) {
+
+            music.stop();
+
             System.out.println("BLAD ODTWARZANIA INTRO:");
             e.printStackTrace();
         }

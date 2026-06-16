@@ -1,4 +1,4 @@
-Bulbasaur,70,20
-Charmander,70,10
-Squirtle,60,10
-Pikachu,60,10
+Bulbasaur,140,18,GRASS
+Charmander,130,22,FIRE
+Squirtle,160,16,WATER
+Pikachu,120,24,ELECTRIC

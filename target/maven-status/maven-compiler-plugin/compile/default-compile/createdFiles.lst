@@ -1,9 +1,16 @@
 AsciiLoader.class
 IntroController.class
+Settings.class
+SettingsMenu.class
 StarterMenu.class
 MainMenu.class
 Main.class
+PostBattleMenu.class
+MusicPlayer.class
 Battle.class
 PokemonLoader.class
-IntroPlayer.class
+TypeChart.class
+PokemonType.class
+TypeChart$1.class
 Pokemon.class
+IntroPlayer.class
