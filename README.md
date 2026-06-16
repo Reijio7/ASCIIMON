@@ -2,6 +2,8 @@
 
 > Java-based ASCII battle game inspired by Pokémon
 
+*WORKS ONLY ON UNIX!!!!!!!!*
+
 ---
 
 ## BUILD STATUS
